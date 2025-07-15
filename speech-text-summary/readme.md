@@ -1,4 +1,4 @@
-# Telegram Voice Transcription Bot
+# Speech-text-summary
 
 This project is a Telegram bot that transcribes voice messages, restores punctuation, generates summaries, and saves results in Markdown format.
 
