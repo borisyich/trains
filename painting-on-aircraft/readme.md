@@ -1,4 +1,4 @@
-# Aircraft Paint Editor
+# Painting-on-aircraft
 
 ## Overview
 The **Aircraft Paint Editor** is a Python application that leverages advanced machine learning models to edit aircraft liver Livery through inpainting. It uses **Stable Diffusion XL Inpainting** for image editing and the **Segment Anything Model (SAM)** for automatic segmentation of aircraft regions. The application provides a user-friendly **Gradio** interface to upload images, select regions (via points or manual sketching), and describe desired paint schemes, which are enhanced by the **Gemma** model through **Ollama**.
