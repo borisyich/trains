@@ -49,7 +49,7 @@ This project is a Telegram bot that transcribes voice messages, restores punctua
 ## Usage
 1. Run the bot:
    ```bash
-   python telegram_bot.py
+   python speech-text-summary.py
    ```
 2. In Telegram, start the bot with `/start`.
 3. Send a voice message to receive:
