@@ -19,6 +19,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.docstore.document import Document as LangChainDocument
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from pathlib import Path
 
 # Suppress warnings to keep logs clean and avoid cluttering the console
 warnings.filterwarnings("ignore")
@@ -26,13 +27,13 @@ warnings.filterwarnings("ignore")
 # Load environment variables from .env file for configuration
 load_dotenv()
 # Path to Tesseract executable for OCR processing
-TESSERACT_PATH = os.getenv("TESSERACT_PATH")  
+TESSERACT_PATH = Path(os.getenv("TESSERACT_PATH"))
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 # Chunk size and overlap for text splitting in RAG pipeline
-CHUNK_SIZE = os.getenv('CHUNK_SIZE')
-CHUNK_OVERLAP = os.getenv('CHUNK_OVERLAP')
+CHUNK_SIZE = int(os.getenv('CHUNK_SIZE'))
+CHUNK_OVERLAP = int(os.getenv('CHUNK_OVERLAP'))
 # Number of relevant chunks to retrieve for answering questions
-N_CHUNKS = os.getenv('N_CHUNKS')
+N_CHUNKS = int(os.getenv('N_CHUNKS'))
 
 # Enable nested asyncio event loops for compatibility with Streamlit
 nest_asyncio.apply()
@@ -60,12 +61,6 @@ sys.excepthook = handle_exception
 def extract_text(file):
     """
     Extracts text from uploaded files of various formats (.txt, .pdf, .docx, .xlsx).
-    
-    Args:
-        file: The uploaded file object from Streamlit file uploader.
-    
-    Returns:
-        str: Extracted text from the file, or None if extraction fails or the format is unsupported.
     """
     start_time = time.time()
     file_extension = os.path.splitext(file.name)[1].lower()
@@ -124,13 +119,6 @@ def extract_text(file):
 def query_model(context, question):
     """
     Processes a user question using a Retrieval-Augmented Generation (RAG) pipeline.
-    
-    Args:
-        context (str): The full text of the document to base answers on.
-        question (str): The user's question related to the document.
-    
-    Returns:
-        str: The model's response to the question, or an error message if processing fails.
     """
     start_time = time.time()
     logger.info(f"Отправка запроса к модели с вопросом: {question[:50]}...")
