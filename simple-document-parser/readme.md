@@ -53,7 +53,7 @@ Additionally, you need:
   CHUNK_SIZE=1000 # for example
   CHUNK_OVERLAP=200 # for example
   N_CHUNKS=8 # for example
-   ```
+  ```
 3. Ensure Ollama is running with the Gemma3n model:
    ```bash
    ollama run gemma3n
