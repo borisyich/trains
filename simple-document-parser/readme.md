@@ -48,8 +48,8 @@ Additionally, you need:
    cd trains/simple-document-parser
    ```
 2. Create a `.env` file in the project root with:
-   ```env
-  TESSERACT_PATH=/path/to/tesseract
+   ```bash
+  TESSERACT_PATH='C:\Program Files\Tesseract-OCR\tesseract.exe'
   CHUNK_SIZE=1000 # for example
   CHUNK_OVERLAP=200 # for example
   N_CHUNKS=8 # for example
