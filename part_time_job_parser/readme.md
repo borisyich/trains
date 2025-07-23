@@ -1,4 +1,4 @@
-# Part_time_job_parser
+# Part-time-job-parser
 
 ## Overview
 This is a Telegram bot designed to scrape job vacancies from [finder.work](https://finder.work), save them in JSON and CSV formats, and notify users about new vacancies. The bot supports commands to parse vacancies, check for new listings, and retrieve saved data files.
