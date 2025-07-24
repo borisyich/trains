@@ -84,13 +84,13 @@ def append_to_csv(vacancies):
     except Exception as e:
         logger.error(f"Error appending to {CSV_FILE}: {e}")
 
-async def parse_vacancies(context: ContextTypes.DEFAULT_TYPE, chat_id: int):
+async def parse_vacancies(context: ContextTypes.DEFAULT_TYPE, chat_id: int = None):
     """
     Parses job vacancies from all pages of the target website and sends progress updates to the chat.
     
     Args:
         context (ContextTypes.DEFAULT_TYPE): Telegram bot context for sending messages.
-        chat_id (int): The Telegram chat ID to send progress updates to (None for no messaging).
+        chat_id (int, optional): The Telegram chat ID to send progress updates to. Defaults to None.
     
     Returns:
         dict: A dictionary of parsed vacancies with URLs as keys and vacancy details as values.
@@ -102,13 +102,13 @@ async def parse_vacancies(context: ContextTypes.DEFAULT_TYPE, chat_id: int):
         try:
             logger.info(f"Parsing page {page}: {url}")
             if chat_id is not None:
-                await context.bot.send_message(chat_id=chat_id, text=f"Parsing page {page}...")
+                await context.bot.send_message(chat_id=chat_id, text=f"Парсинг страницы {page}...")
             response = requests.get(url, timeout=10)
             if response.status_code != 200:
                 logger.warning(f"Failed to load page {url}: status {response.status_code}")
                 if chat_id is not None:
                     await context.bot.send_message(
-                        chat_id=chat_id, text=f"Error: page {page} unavailable (status {response.status_code}).")
+                        chat_id=chat_id, text=f"Ошибка: страница {page} недоступна ({response.status_code}).")
                 break
 
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -118,7 +118,7 @@ async def parse_vacancies(context: ContextTypes.DEFAULT_TYPE, chat_id: int):
                 logger.info(f"No vacancies found on page {page}")
                 if chat_id is not None:
                     await context.bot.send_message(
-                        chat_id=chat_id, text=f"No vacancies found on page {page}. Parsing complete.")
+                        chat_id=chat_id, text=f"Не найдено вакансий на странице {page}. Парсинг завершен.")
                 break
 
             for card in vacancy_cards:
@@ -134,11 +134,11 @@ async def parse_vacancies(context: ContextTypes.DEFAULT_TYPE, chat_id: int):
                 company_elem = card.find('a', class_='fui-no-underline text-grey-dark')
                 company = company_elem.text if company_elem else "N/A"
 
-                if vacancy_url:  # Use URL as key if available
+                if vacancy_url and title != "N/A":  # Валидация данных
                     vacancies[vacancy_url] = {
-                        'title': title,
-                        'salary': salary,
-                        'company': company,
+                        'title': title.strip(),
+                        'salary': salary.strip() if salary != "N/A" else "Не указана",
+                        'company': company.strip() if company != "N/A" else "Не указана",
                         'url': vacancy_url
                     }
 
@@ -146,9 +146,15 @@ async def parse_vacancies(context: ContextTypes.DEFAULT_TYPE, chat_id: int):
         except requests.RequestException as e:
             logger.error(f"Error requesting page {url}: {e}")
             if chat_id is not None:
-                await context.bot.send_message(chat_id=chat_id, text=f"Error loading page {page}: {str(e)}")
+                await context.bot.send_message(chat_id=chat_id, text=f"Ошибка при загрузке страницы {page}: {str(e)}")
             break
 
+    if vacancies:
+        append_to_csv(vacancies)
+        save_vacancies(vacancies)
+        logger.info(f"Saved {len(vacancies)} vacancies to {JSON_FILE} and {CSV_FILE}")
+        if chat_id is not None:
+            await context.bot.send_message(chat_id=chat_id, text=f"Сохранено {len(vacancies)} вакансий.")
     return vacancies
 
 async def send_welcome_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -346,8 +352,7 @@ async def list_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/getfile - Отправляет текущий файл vacancies.json.\n"
         "/getcsv - Отправляет текущий файл vacancies_stats.csv.\n"
         "/status - Проверяет, работает ли бот, и показывает текущее время.\n"
-        "Отправка JSON-файла - Загрузите JSON-файл с вакансиями (например, вчерашний vacancies.json), \
-            чтобы использовать его для сравнения при /check."
+        "Отправка JSON-файла - Загрузите JSON-файл с вакансиями (например, вчерашний vacancies.json), чтобы использовать его для сравнения при /check."
     )
     await context.bot.send_message(chat_id=chat_id, text=message)
     logger.info("Command list sent to chat")
@@ -418,16 +423,13 @@ def main():
     application.add_handler(MessageHandler(filters.Document.MimeType("application/json"), handle_file))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # Check if vacancies.json exists; if not, parse vacancies on startup
+    # Ensure data directory exists
+    os.makedirs(os.path.dirname(JSON_FILE), exist_ok=True)
+
+    # Check if vacancies.json exists; if not, schedule initial parsing
     if not os.path.exists(JSON_FILE):
-        logger.info("File vacancies.json not found, parsing vacancies on startup")
-        vacancies = asyncio.run(parse_vacancies(context=application, chat_id=None))
-        if vacancies:
-            append_to_csv(vacancies)  # Append to CSV
-            save_vacancies(vacancies)
-            logger.info(f"Saved {len(vacancies)} vacancies to {JSON_FILE} and {CSV_FILE}")
-        else:
-            logger.warning("No vacancies found during initial parsing")
+        logger.info("File vacancies.json not found, scheduling initial parsing")
+        application.job_queue.run_once(parse_vacancies, when=0, data={'chat_id': None})
 
     # Start the bot
     logger.info("Bot successfully started")
