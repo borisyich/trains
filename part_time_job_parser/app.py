@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, JobQueue, MessageHandler, filters, ContextTypes
 
 # Configure logging for debugging and monitoring
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -19,9 +19,9 @@ load_dotenv()
 
 # Configuration constants
 BOT_TOKEN = os.getenv('BOT_TOKEN')  # Telegram bot token from environment
-BASE_URL = "https://finder.work/vacancies/project?categories=1"  # Base URL for job vacancy scraping
-JSON_FILE = "./data/vacancies.json"  # Path to store scraped vacancies in JSON format
-CSV_FILE = "./data/vacancies_stats.csv"  # Path to store vacancy statistics in CSV format
+BASE_URL = os.getenv('BASE_URL')  # Base URL for job vacancy scraping
+JSON_FILE = os.getenv('JSON_FILE')  # Path to store scraped vacancies in JSON format
+CSV_FILE = os.getenv('CSV_FILE')  # Path to store vacancy statistics in CSV format
 
 def load_vacancies():
     """
@@ -411,7 +411,11 @@ def main():
     """
     Initializes and runs the Telegram bot, checking for the existence of the vacancies JSON file on startup.
     """
-    application = Application.builder().token(BOT_TOKEN).build()
+    # Create a JobQueue instance
+    job_queue = JobQueue()
+
+    # Build the application with the JobQueue
+    application = Application.builder().token(BOT_TOKEN).job_queue(job_queue).build()
 
     # Register command and message handlers
     application.add_handler(CommandHandler("start", start))
