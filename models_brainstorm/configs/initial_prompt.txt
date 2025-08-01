@@ -1,0 +1,5 @@
+Identify potential growth or influence points in the aviation business 
+where ideas based on machine learning and large language models can be applied.
+You should analyze existing examples in aviation business.
+Also you should analyze capabilities and decisions that provided by machine learning and large language models.
+Then you need to find intersections: decisions that may purpose commercial goals or increase income or decrease costs in aviation business with machine learning ir large language models.

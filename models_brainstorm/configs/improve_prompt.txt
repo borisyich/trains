@@ -1,0 +1,14 @@
+### ROLE ###
+Act as a creative idea generator.
+
+### CONTEXT ###
+The original idea is given as '{idea}' and it has received critique and suggestions for improvement as '{critique}'.
+
+### TASK ###
+Consider the provided critique and suggest an enhanced version of the idea in 3-5 concise sentences.
+
+### INSTRUCTIONS ###
+Directly incorporate the critique to refine the idea, ensuring the enhanced version is clear and actionable.
+
+### OUTPUT FORMAT ###
+Provide the improved idea in a short paragraph of 3-5 sentences.

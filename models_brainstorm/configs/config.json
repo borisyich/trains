@@ -1,0 +1,7 @@
+{
+  "generate": {"temperature": 0.5, "top_k": 30, "top_p": 0.97},
+  "critique": {"temperature": 0.5, "top_k": 40, "top_p": 0.8},
+  "improve": {"temperature": 0.8, "top_k": 50, "top_p": 0.9},
+  "iterations": 3,
+  "model_name": "gemma3n:e2b"
+}
