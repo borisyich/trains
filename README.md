@@ -6,4 +6,5 @@ Repo contains following projects:
 3. speech-text-summary. Telegram bot that transcribes voice messages, restores punctuation, generates summaries, and saves results in Markdown format.
 4. simple-document-parser. Application that analyzes documents and answer user queries.
 5. agent-manager. Application that implements a multi-agent system for processing user queries and images based on four AI agents (web, code, image, and manager agents).
-6. part-time-job-parser. Telegram bot designed to scrape job vacancies from finder.work, save them in JSON and CSV formats, and notify users about new vacancies. 
+6. part_time_job_parser. Telegram bot designed to scrape job vacancies from finder.work, save them in JSON and CSV formats, and notify users about new vacancies. 
+7. models_vrainstorm. Application simulates a brainstorming process using local LLMs.
